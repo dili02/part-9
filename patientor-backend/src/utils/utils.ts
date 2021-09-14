@@ -1,4 +1,4 @@
-import { NewPatientEntry, Gender } from "../types";
+import { NewPatientEntry, Gender, Entry } from "../types";
 
 const isString = (text: any): text is string => {
   return typeof text === "string" || text instanceof String;
@@ -50,6 +50,23 @@ const parseGender = (gender: any): Gender => {
   return gender;
 };
 
+const isEntryType = (entry: any): entry is Entry => {
+  const healthCheck: boolean = entry.type === "HealthCheck";
+  const occupationalHealthcare: boolean =
+    entry.type === "OccupationalHealthcare";
+  const hospital: boolean = entry.type === "Hospital";
+
+  return healthCheck || occupationalHealthcare || hospital;
+};
+
+const parseEntries = (entries: any): Entry[] => {
+  if (!entries) return entries;
+  if (entries.map((entry: any) => !isEntryType(entry))) {
+    throw new Error("Incorrect or missing entries: " + entries);
+  }
+  return entries;
+};
+
 const toNewPatientEntry = (object: any): NewPatientEntry => {
   const newEntry: NewPatientEntry = {
     name: parseName(object.name),
@@ -57,6 +74,7 @@ const toNewPatientEntry = (object: any): NewPatientEntry => {
     ssn: parseSsn(object.ssn),
     dateOfBirth: parseDate(object.dateOfBirth),
     gender: parseGender(object.gender),
+    entries: parseEntries(object.entries) || [],
   };
 
   return newEntry;

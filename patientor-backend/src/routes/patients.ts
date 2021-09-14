@@ -2,7 +2,7 @@ import express from "express";
 import {
   getAllPatientsWithoutSensitiveInfo,
   getPatientById,
-  addPetient,
+  addPetient, addEntry
 } from "../services/patient";
 import toNewPatientEntry from '../utils/utils'
 
@@ -28,5 +28,20 @@ router.post("/", (req, res) => {
     res.status(400).send(error);
   }
 });
+
+router.post("/:id/entries", (req, res) => {
+  try {
+    const patient = getPatientById(req.params.id)
+
+    const newEntry = toNewPatientEntry(req.body)
+
+    if (patient && newEntry) {
+      const addedEntry = addEntry(patient, newEntry);
+      res.json(addedEntry);
+    }
+  } catch (error) {
+    res.status(400).send(error.message)
+  }
+})
 
 export default router;
